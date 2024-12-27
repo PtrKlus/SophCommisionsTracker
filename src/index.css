@@ -1,0 +1,144 @@
+/* General container styles */
+.container {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+h1 {
+  text-align: center;
+  color: #4caf50;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-top: 30px;
+  color: #333;
+}
+
+.year-filter {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.year-filter select {
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Total Info Styles */
+.total-info {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.total-info h3 {
+  font-size: 18px;
+  color: #333;
+  margin: 5px 0;
+}
+
+.input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.input-container input,
+.input-container button {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.input-container button {
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+}
+
+.input-container button:hover {
+  background-color: #45a049;
+}
+
+/* Table Styles */
+.table-container {
+  margin-top: 30px;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+}
+
+td {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+tr:nth-child(even) td {
+  background-color: #f2f2f2;
+}
+
+/* Delete button styling */
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Chart container */
+.chart-container {
+  width: 100%;
+  max-width: 700px;
+  margin-top: 30px;
+}
+
+.chart-container .recharts-responsive-container {
+  margin: 0 auto;
+}
+
+.content {
+  display: flex;
+}
+
+#kpiBox {
+  display: flex;
+  align-items: center;
+  gap: 5%;
+}
