@@ -1,3 +1,58 @@
+/* Add to index.css */
+/* General Reset */
+body,
+html,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4f4f9;
+}
+
+/* Login Container */
+.auth-container {
+  text-align: center;
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+/* Title */
+.auth-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* Buttons */
+.auth-container button {
+  display: inline-block;
+  width: 100%;
+  padding: 10px 20px;
+  margin: 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background: #4285f4; /* Google Blue */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 /* General container styles */
 .container {
   font-family: Arial, sans-serif;

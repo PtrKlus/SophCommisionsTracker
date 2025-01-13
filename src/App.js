@@ -9,6 +9,14 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { db } from "./firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 function App() {
   const [entries, setEntries] = useState([]);
@@ -17,35 +25,38 @@ function App() {
   const [date, setDate] = useState("");
   const [selectedYear, setSelectedYear] = useState(""); // Added year filter state
 
-  // Load entries from localStorage on initial render
+  // Load entries from Firestore on initial render
   useEffect(() => {
-    const savedEntries = JSON.parse(localStorage.getItem("entries"));
-    if (savedEntries) {
-      setEntries(savedEntries);
-    }
+    const fetchEntries = async () => {
+      const entriesCollection = collection(db, "entries");
+      const entriesSnapshot = await getDocs(entriesCollection);
+      const entriesList = entriesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setEntries(entriesList);
+    };
+
+    fetchEntries();
   }, []);
 
-  // Save entries to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("entries", JSON.stringify(entries));
-  }, [entries]);
-
-  const addEntry = () => {
+  const addEntry = async () => {
     if (name && price && date) {
       const newEntry = {
-        id: Date.now(),
         name,
         price: parseFloat(price),
         date: date,
       };
-      setEntries([...entries, newEntry]);
+      const docRef = await addDoc(collection(db, "entries"), newEntry);
+      setEntries([...entries, { id: docRef.id, ...newEntry }]);
       setName("");
       setPrice("");
       setDate("");
     }
   };
 
-  const deleteEntry = (id) => {
+  const deleteEntry = async (id) => {
+    await deleteDoc(doc(db, "entries", id));
     const updatedEntries = entries.filter((entry) => entry.id !== id);
     setEntries(updatedEntries);
   };
