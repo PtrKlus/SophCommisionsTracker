@@ -235,6 +235,7 @@ tr:nth-child(even) td {
 
 .content {
   display: flex;
+  justify-content: space-between;
 }
 
 #kpiBox {
@@ -313,4 +314,73 @@ tr:nth-child(even) td {
 .multi-select option:checked {
   background-color: #4caf50;
   color: #fff;
+}
+
+/* Table Styles */
+.table-container {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 400px; /* Adjust this value to fit your needs */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1; /* Make sure the headers are on top of other elements */
+}
+
+td {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+tr:nth-child(even) td {
+  background-color: #f2f2f2;
+}
+
+/* Custom scrollbar styles */
+.table-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #4caf50; /* Original color */
+  border-radius: 5px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1; /* Hover color */
+}
+
+/* Change the scrollbar thumb color to light green */
+.table-container::-webkit-scrollbar-thumb {
+  background: #4caf50; /* Light green color */
+}
+
+/* Change the scrollbar thumb hover color to dark green */
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #3cb371; /* Dark green color */
 }

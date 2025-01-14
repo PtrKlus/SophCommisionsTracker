@@ -178,7 +178,7 @@ function App() {
     entries,
     selectedYear,
     selectedMonth
-  );
+  ).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const chartData = aggregateData(filteredEntries, timePeriod).map(
     (dataPoint) => ({
@@ -293,10 +293,19 @@ function App() {
         <h3>Total Price: €{totalPrice}</h3>
       </div>
       <div className="content">
-        <div className="table-container">
+        <div
+          className="table-container"
+          style={{ overflowY: "auto", height: "400px" }}
+        >
           <table>
             <thead>
-              <tr>
+              <tr
+                style={{
+                  position: "sticky",
+                  top: "0",
+                  backgroundColor: "white",
+                }}
+              >
                 <th>Name</th>
                 <th>Type</th>
                 <th>Extra's</th>
