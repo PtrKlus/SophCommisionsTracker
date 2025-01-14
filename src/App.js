@@ -221,6 +221,7 @@ function App() {
           <option value="Hip Up">Hip Up</option>
           <option value="Knee Up">Knee Up</option>
           <option value="Full Body">Full Body</option>
+          <option value="Landscape">Landscape</option>
           <option value="Stream Overlay">Stream Overlay</option>
         </select>
 
