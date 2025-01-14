@@ -311,8 +311,16 @@ function App() {
                   <td>{entry.name}</td>
                   <td>{entry.type}</td>
                   <td>{entry.extras.map(({ value }) => value).join(", ")}</td>
-                  <td>{entry.price.toFixed(2)}</td>
-                  <td>{entry.date}</td>
+                  <td>€ {entry.price.toFixed(2)}</td>
+                  <td>
+                    {new Date(entry.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "2-digit",
+                      timeZone: "UTC", // To ensure consistent formatting across different time zones
+                      formatMatcher: "basic", // To use the shortest possible representation
+                    })}
+                  </td>
                   <td>
                     <button
                       className="delete-btn"
