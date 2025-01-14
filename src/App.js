@@ -280,8 +280,7 @@ function App() {
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i} value={i}>
                 {new Date(2022, i, 1).toLocaleDateString("en-US", {
-                  month: "short",
-                  year: "numeric",
+                  month: "long",
                 })}
               </option>
             ))}
