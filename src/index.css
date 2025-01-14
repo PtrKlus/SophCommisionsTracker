@@ -6,9 +6,6 @@ html,
   height: 100%;
   margin: 0;
   font-family: Arial, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background-color: #f4f4f9;
 }
 
@@ -48,16 +45,62 @@ html,
 .auth-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+.auth-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  border-bottom-left-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+
+.auth-header p {
+  margin: 0 20px 0 0;
+  font-size: 14px;
+}
+
+.auth-header button {
+  padding: 5px 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.auth-header button:hover {
+  background-color: #45a049;
+}
+
+.time-period-toggle {
+  margin-bottom: 10px;
+}
+
+.time-period-toggle button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.time-period-toggle button.active {
+  background-color: #4caf50;
+  color: white;
 }
 
 /* General container styles */
 .container {
   font-family: Arial, sans-serif;
   padding: 20px;
-  max-width: 1200px;
+  max-width: 90%;
   margin: 0 auto;
 }
 
@@ -73,12 +116,14 @@ h2 {
   color: #333;
 }
 
-.year-filter {
+.year-filter,
+.month-filter {
   text-align: center;
   margin-bottom: 20px;
 }
 
-.year-filter select {
+.year-filter select,
+.month-filter select {
   padding: 10px;
   font-size: 16px;
   margin-top: 10px;
@@ -196,4 +241,76 @@ tr:nth-child(even) td {
   display: flex;
   align-items: center;
   gap: 5%;
+}
+.css-b62m3t-container {
+  min-width: 40%;
+}
+.css-13cymwt-control {
+  box-sizing: initial !important;
+}
+
+/* Customize the appearance of the single select */
+.input-field {
+  display: block;
+  width: 10%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.input-field:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+/* Customize the appearance of the multi select */
+.input-field[multiple] {
+  height: auto;
+  padding: 0;
+}
+
+.input-field[multiple] option {
+  padding: 0.375rem 0.75rem;
+}
+
+.input-field[multiple] option:checked {
+  background-color: #4caf50;
+  color: #fff;
+}
+.multi-select {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  appearance: none; /* Remove default arrow */
+  cursor: pointer;
+}
+
+.multi-select:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+.multi-select option {
+  padding: 5px;
+}
+
+.multi-select option:checked {
+  background-color: #4caf50;
+  color: #fff;
 }

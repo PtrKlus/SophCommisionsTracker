@@ -109,12 +109,12 @@ const AuthWrapper = ({ children }) => {
   }
 
   return (
-    <div>
-      <header>
+    <div className="auth-wrapper">
+      <header className="auth-header">
         <p>Welcome, {user.displayName}!</p>
         <button onClick={handleSignOut}>Sign Out</button>
       </header>
-      {children}
+      <div className="auth-wrapper-content">{children}</div>
     </div>
   );
 };
