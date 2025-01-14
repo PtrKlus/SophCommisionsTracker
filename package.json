@@ -2,7 +2,7 @@
   "name": "name-price-tracker",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ptrklus.github.io/SophCommisionsTracker/",
+  "homepage": "https://ptrklus.github.io/SophCommisionsTracker",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
