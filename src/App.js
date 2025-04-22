@@ -38,7 +38,7 @@ function App() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [date, setDate] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [timePeriod, setTimePeriod] = useState("month");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedType, setSelectedType] = useState("");
