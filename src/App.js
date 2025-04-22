@@ -15,6 +15,8 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  updateDoc,
+  deleteField,
 } from "firebase/firestore";
 import { default as ReactSelect, components } from "react-select";
 
@@ -97,6 +99,31 @@ function App() {
     await deleteDoc(doc(db, "entries", id));
     const updatedEntries = entries.filter((entry) => entry.id !== id);
     setEntries(updatedEntries);
+  };
+
+  const addTimeToEntry = async (id, time) => {
+    const entryRef = doc(db, "entries", id);
+    await updateDoc(entryRef, { time });
+    setEntries((prevEntries) =>
+      prevEntries.map((entry) => (entry.id === id ? { ...entry, time } : entry))
+    );
+  };
+
+  const updateTimeForEntry = async (id, newTime) => {
+    const entryRef = doc(db, "entries", id);
+
+    // If the user enters "0", delete the time field
+    const updatedData =
+      newTime === "0" ? { time: deleteField() } : { time: newTime };
+
+    await updateDoc(entryRef, updatedData);
+    setEntries((prevEntries) =>
+      prevEntries.map((entry) =>
+        entry.id === id
+          ? { ...entry, time: newTime === "0" ? undefined : newTime }
+          : entry
+      )
+    );
   };
 
   const handleChange = (selected) => {
@@ -196,6 +223,31 @@ function App() {
     .reduce((total, entry) => total + entry.price, 0)
     .toFixed(2);
 
+  // Calculate the total time of the filtered entries
+  const totalTime = filteredEntries.reduce((total, entry) => {
+    if (!entry.time) return total; // Skip entries without time
+    const [hours, minutes] = entry.time.split(":").map(Number); // Split time into hours and minutes
+    return total + hours * 60 + minutes; // Convert to total minutes
+  }, 0);
+
+  // Convert total time back to HH:MM format
+  const totalTimeFormatted = `${Math.floor(totalTime / 60)
+    .toString()
+    .padStart(2, "0")}:${(totalTime % 60).toString().padStart(2, "0")}`;
+
+  // Calculate wage per hour for entries with time
+  const wagePerHour =
+    filteredEntries.reduce((total, entry) => {
+      if (!entry.time) return total; // Skip entries without time
+      const [hours, minutes] = entry.time.split(":").map(Number);
+      const totalHours = hours + minutes / 60; // Convert time to hours
+      return total + entry.price / totalHours; // Add wage per hour
+    }, 0) / filteredEntries.filter((entry) => entry.time).length; // Average wage per hour
+
+  const wagePerHourFormatted = wagePerHour
+    ? `€${wagePerHour.toFixed(2)}`
+    : "N/A";
+
   // Generate a list of years from the entries to populate the year filter dropdown
   const years = [
     ...new Set(entries.map((entry) => new Date(entry.date).getFullYear())),
@@ -291,6 +343,8 @@ function App() {
         {/* Total count and total price */}
         <h3>Total Entries: {totalCount}</h3>
         <h3>Total Price: €{totalPrice}</h3>
+        <h3>Total Time: {totalTimeFormatted}</h3>
+        <h3>Wage Per Hour: {wagePerHourFormatted}</h3>
       </div>
       <div className="content">
         <div
@@ -311,6 +365,7 @@ function App() {
                 <th>Extra's</th>
                 <th>Price</th>
                 <th>Date</th>
+                <th>Time</th>
                 <th></th>
               </tr>
             </thead>
@@ -329,6 +384,34 @@ function App() {
                       timeZone: "UTC", // To ensure consistent formatting across different time zones
                       formatMatcher: "basic", // To use the shortest possible representation
                     })}
+                  </td>
+                  <td>
+                    {entry.time ? (
+                      <span
+                        onDoubleClick={() => {
+                          const newTime = prompt(
+                            "Edit time (HH:MM):",
+                            entry.time
+                          );
+                          if (newTime) {
+                            updateTimeForEntry(entry.id, newTime);
+                          }
+                        }}
+                      >
+                        {entry.time}
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          const time = prompt("Enter time (HH:MM):");
+                          if (time) {
+                            addTimeToEntry(entry.id, time);
+                          }
+                        }}
+                      >
+                        Add Time
+                      </button>
+                    )}
                   </td>
                   <td>
                     <button
