@@ -45,6 +45,7 @@ function App() {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [selectedExtra, setSelectedExtra] = useState([]);
+  const [chartMetric, setChartMetric] = useState("price");
 
   const options = [
     { value: "Little Animal", label: "Little Animal" },
@@ -208,11 +209,49 @@ function App() {
   ).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const chartData = aggregateData(filteredEntries, timePeriod).map(
-    (dataPoint) => ({
-      ...dataPoint,
-      type: dataPoint.date + " - " + dataPoint.type,
-      extras: dataPoint.extras.map(({ value }) => value).join(", "),
-    })
+    (dataPoint) => {
+      // Calculate wage per hour for this period
+      let wagePerHour = null;
+      // Find all entries in this period
+      const periodEntries = filteredEntries.filter((entry) => {
+        let periodKey;
+        const date = new Date(entry.date);
+        switch (timePeriod) {
+          case "year":
+            periodKey = date.getFullYear().toString();
+            break;
+          case "month":
+            periodKey = date.toISOString().slice(0, 7);
+            break;
+          case "week":
+            const weekNumber = getWeekNumber(date);
+            periodKey = `${date.getFullYear()}-W${weekNumber
+              .toString()
+              .padStart(2, "0")}`;
+            break;
+          default:
+            periodKey = date.toISOString().slice(0, 10);
+        }
+        return periodKey === dataPoint.date;
+      });
+      const wageSum = periodEntries.reduce((sum, entry) => {
+        if (!entry.time) return sum;
+        const [hours, minutes] = entry.time.split(":").map(Number);
+        const totalHours = hours + minutes / 60;
+        return sum + (totalHours > 0 ? entry.price / totalHours : 0);
+      }, 0);
+
+      const wageCount = periodEntries.filter((entry) => entry.time).length;
+      wagePerHour = wageCount > 0 ? wageSum / wageCount : null;
+
+      return {
+        ...dataPoint,
+        type: dataPoint.date + " - " + dataPoint.type,
+        extras: dataPoint.extras.map(({ value }) => value).join(", "),
+        wagePerHour:
+          wagePerHour !== null ? Number(wagePerHour.toFixed(2)) : null, // <-- 2 decimals
+      };
+    }
   );
 
   // Calculate the total count of entries
@@ -429,25 +468,41 @@ function App() {
 
         {/* Bar Chart */}
         <div className="chart-container">
-          <div className="time-period-toggle">
-            <button
-              onClick={() => setTimePeriod("year")}
-              className={timePeriod === "year" ? "active" : ""}
-            >
-              Year
-            </button>
-            <button
-              onClick={() => setTimePeriod("month")}
-              className={timePeriod === "month" ? "active" : ""}
-            >
-              Month
-            </button>
-            <button
-              onClick={() => setTimePeriod("week")}
-              className={timePeriod === "week" ? "active" : ""}
-            >
-              Week
-            </button>
+          <div id="togglesDiv">
+            <div className="time-period-toggle">
+              <button
+                onClick={() => setTimePeriod("year")}
+                className={timePeriod === "year" ? "active" : ""}
+              >
+                Year
+              </button>
+              <button
+                onClick={() => setTimePeriod("month")}
+                className={timePeriod === "month" ? "active" : ""}
+              >
+                Month
+              </button>
+              <button
+                onClick={() => setTimePeriod("week")}
+                className={timePeriod === "week" ? "active" : ""}
+              >
+                Week
+              </button>
+            </div>
+            <div className="time-period-toggle">
+              <button
+                onClick={() => setChartMetric("price")}
+                className={chartMetric === "price" ? "active" : ""}
+              >
+                Show Price
+              </button>
+              <button
+                onClick={() => setChartMetric("wagePerHour")}
+                className={chartMetric === "wagePerHour" ? "active" : ""}
+              >
+                Show Wage Per Hour
+              </button>
+            </div>
           </div>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={chartData}>
@@ -490,7 +545,11 @@ function App() {
                   }
                 }}
               />
-              <Bar dataKey="price" fill="#4CAF50" />
+              <Bar
+                dataKey={chartMetric}
+                fill="#4CAF50"
+                name={chartMetric === "price" ? "Price" : "Wage Per Hour"}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>

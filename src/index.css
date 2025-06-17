@@ -81,8 +81,10 @@ html,
   background-color: #45a049;
 }
 
-.time-period-toggle {
-  margin-bottom: 10px;
+#togglesDiv {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
 .time-period-toggle button {
