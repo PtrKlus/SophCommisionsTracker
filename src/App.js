@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 import { db } from "./firebase";
 import {
@@ -292,6 +293,35 @@ function App() {
     ...new Set(entries.map((entry) => new Date(entry.date).getFullYear())),
   ].sort();
 
+  // Calculate average for the selected metric
+  let averageValue = null;
+
+  if (chartMetric === "wagePerHour") {
+    // Use all entries with time for wage per hour average (matches KPI)
+    const wagePerHourEntries = filteredEntries.filter((entry) => entry.time);
+    const wagePerHourValues = wagePerHourEntries
+      .map((entry) => {
+        const [hours, minutes] = entry.time.split(":").map(Number);
+        const totalHours = hours + minutes / 60;
+        return totalHours > 0 ? entry.price / totalHours : null;
+      })
+      .filter((v) => v !== null && !isNaN(v));
+    averageValue =
+      wagePerHourValues.length > 0
+        ? wagePerHourValues.reduce((a, b) => a + b, 0) /
+          wagePerHourValues.length
+        : null;
+  } else {
+    // For price, use the average of the chart data
+    const values = chartData
+      .map((d) => d[chartMetric])
+      .filter((v) => typeof v === "number" && !isNaN(v));
+    averageValue =
+      values.length > 0
+        ? values.reduce((a, b) => a + b, 0) / values.length
+        : null;
+  }
+
   return (
     <div className="container">
       <h1>Commissions Tracker</h1>
@@ -550,6 +580,23 @@ function App() {
                 fill="#4CAF50"
                 name={chartMetric === "price" ? "Price" : "Wage Per Hour"}
               />
+              {/* Average Line */}
+              {averageValue !== null && (
+                <ReferenceLine
+                  y={averageValue}
+                  stroke="#223924"
+                  strokeDasharray="4 4"
+                  label={{
+                    value: `Avg: ${
+                      chartMetric === "price" ? "€" : ""
+                    }${averageValue.toFixed(2)}`,
+                    position: "top",
+                    fill: "#002316",
+                    fontSize: 12,
+                    fontWeight: "bold",
+                  }}
+                />
+              )}
             </BarChart>
           </ResponsiveContainer>
         </div>
