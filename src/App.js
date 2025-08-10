@@ -47,6 +47,7 @@ function App() {
   const [selectedType, setSelectedType] = useState("");
   const [selectedExtra, setSelectedExtra] = useState([]);
   const [chartMetric, setChartMetric] = useState("price");
+  const [xAxisKey, setXAxisKey] = useState("date");
 
   const options = [
     { value: "Extra Animal", label: "Extra Animal" },
@@ -320,6 +321,36 @@ function App() {
         : null;
   }
 
+  // Group by type if xAxisKey is "type"
+  const chartDataByType = React.useMemo(() => {
+    if (xAxisKey !== "type") return chartData;
+    // Aggregate by type
+    const typeMap = {};
+    filteredEntries.forEach((entry) => {
+      if (!typeMap[entry.type]) {
+        typeMap[entry.type] = {
+          type: entry.type,
+          price: 0,
+          wagePerHour: 0,
+          count: 0,
+        };
+      }
+      typeMap[entry.type].price += entry.price;
+      if (entry.time) {
+        const [hours, minutes] = entry.time.split(":").map(Number);
+        const totalHours = hours + minutes / 60;
+        typeMap[entry.type].wagePerHour +=
+          totalHours > 0 ? entry.price / totalHours : 0;
+        typeMap[entry.type].count += 1;
+      }
+    });
+    return Object.values(typeMap).map((d) => ({
+      ...d,
+      wagePerHour:
+        d.count > 0 ? Number((d.wagePerHour / d.count).toFixed(2)) : null,
+    }));
+  }, [xAxisKey, filteredEntries, chartData]);
+
   return (
     <div className="container">
       <h1>Commissions Tracker</h1>
@@ -503,47 +534,51 @@ function App() {
         {/* Bar Chart */}
         <div className="chart-container">
           <div id="togglesDiv">
-            <div className="time-period-toggle">
-              <button
-                onClick={() => setTimePeriod("year")}
-                className={timePeriod === "year" ? "active" : ""}
+            {/* Time period dropdown */}
+            <div className="time-period-dropdown">
+              <label htmlFor="period-select">Period: </label>
+              <select
+                id="period-select"
+                value={timePeriod}
+                onChange={(e) => setTimePeriod(e.target.value)}
               >
-                Year
-              </button>
-              <button
-                onClick={() => setTimePeriod("month")}
-                className={timePeriod === "month" ? "active" : ""}
-              >
-                Month
-              </button>
-              <button
-                onClick={() => setTimePeriod("week")}
-                className={timePeriod === "week" ? "active" : ""}
-              >
-                Week
-              </button>
+                <option value="year">Year</option>
+                <option value="month">Month</option>
+                <option value="week">Week</option>
+              </select>
             </div>
-            <div className="time-period-toggle">
-              <button
-                onClick={() => setChartMetric("price")}
-                className={chartMetric === "price" ? "active" : ""}
+            {/* Chart metric dropdown */}
+            <div className="metric-dropdown">
+              <label htmlFor="metric-select">Metric: </label>
+              <select
+                id="metric-select"
+                value={chartMetric}
+                onChange={(e) => setChartMetric(e.target.value)}
               >
-                Show Price
-              </button>
-              <button
-                onClick={() => setChartMetric("wagePerHour")}
-                className={chartMetric === "wagePerHour" ? "active" : ""}
+                <option value="price">Show Price</option>
+                <option value="wagePerHour">Show Wage Per Hour</option>
+              </select>
+            </div>
+            {/* X-axis grouping dropdown */}
+            <div className="groupby-dropdown">
+              <label htmlFor="groupby-select">Group By: </label>
+              <select
+                id="groupby-select"
+                value={xAxisKey}
+                onChange={(e) => setXAxisKey(e.target.value)}
               >
-                Show Wage Per Hour
-              </button>
+                <option value="date">Date</option>
+                <option value="type">Type</option>
+              </select>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData}>
+            <BarChart data={xAxisKey === "type" ? chartDataByType : chartData}>
               <CartesianGrid strokeDasharray="3 2" vertical={false} />
               <XAxis
-                dataKey="date"
+                dataKey={xAxisKey}
                 tickFormatter={(value) => {
+                  if (xAxisKey === "type") return value;
                   switch (timePeriod) {
                     case "year":
                       return value;
@@ -563,6 +598,9 @@ function App() {
               <YAxis />
               <Tooltip
                 labelFormatter={(value) => {
+                  if (xAxisKey === "type") {
+                    return `${value}`;
+                  }
                   switch (timePeriod) {
                     case "year":
                       return `Year: ${value}`;
