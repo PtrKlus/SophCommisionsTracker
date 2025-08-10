@@ -49,8 +49,7 @@ function App() {
   const [chartMetric, setChartMetric] = useState("price");
 
   const options = [
-    { value: "Little Animal", label: "Little Animal" },
-    { value: "Big Animal", label: "Big Animal" },
+    { value: "Extra Animal", label: "Extra Animal" },
     { value: "Complex Background", label: "Complex Background" },
     { value: "Detailed Prop", label: "Detailed Prop" },
     { value: "Commercial", label: "Commercial" },
@@ -58,9 +57,8 @@ function App() {
     { value: "1 Added Character", label: "1 Added Character" },
     { value: "2 Added Characters", label: "2 Added Characters" },
     { value: "3 Added Characters", label: "3 Added Characters" },
-    { value: "Rendered", label: "Rendered" },
-    { value: "Sketch", label: "Sketch" },
-    { value: "Chibi", label: "Chibi" },
+    { value: "Bundle Discount", label: "Bundle Discount" },
+    { value: "Surprise Me", label: "Surprise Me" },
   ];
 
   // Load entries from Firestore on initial render
@@ -338,12 +336,18 @@ function App() {
           className="input-field"
         >
           <option value="">Select Type</option>
-          <option value="Bust Up">Bust Up</option>
-          <option value="Hip Up">Hip Up</option>
-          <option value="Knee Up">Knee Up</option>
-          <option value="Full Body">Full Body</option>
-          <option value="Landscape">Landscape</option>
-          <option value="Stream Overlay">Stream Overlay</option>
+          <option value="Character Bust">Character Bust</option>
+          <option value="Character Half Body">Character Half Body</option>
+          <option value="Character Full Body">Character Full Body</option>
+          <option value="Animal Half Body">Animal Half Body</option>
+          <option value="Animal Full Body">Animal Full Body</option>
+          <option value="Background / Landscape">Background / Landscape</option>
+          <option value="Chibi">Chibi</option>
+          <option value="Club Outfit">Club Outfit</option>
+          <option value="Decor / Story Stickers">Decor / Story Stickers</option>
+          <option value="Highlight Covers / Story BG">
+            Highlight Covers / Story BG
+          </option>
         </select>
 
         <ReactSelect
