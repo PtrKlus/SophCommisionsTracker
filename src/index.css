@@ -134,13 +134,15 @@ h2 {
 .month-filter {
   text-align: center;
   margin-bottom: 20px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .year-filter select,
 .month-filter select {
-  padding: 10px;
+  padding: 7px;
   font-size: 16px;
-  margin-top: 10px;
   border-radius: 4px;
   border: 1px solid #ddd;
 }

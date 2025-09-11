@@ -36,6 +36,9 @@ const Option = (props) => {
   );
 };
 
+// Custom MultiValue to hide chips
+const MonthMultiValue = () => null;
+
 function App() {
   const [entries, setEntries] = useState([]);
   const [name, setName] = useState("");
@@ -43,7 +46,7 @@ function App() {
   const [date, setDate] = useState("");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [timePeriod, setTimePeriod] = useState("month");
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedMonths, setSelectedMonths] = useState([]);
   const [selectedType, setSelectedType] = useState("");
   const [selectedExtra, setSelectedExtra] = useState([]);
   const [chartMetric, setChartMetric] = useState("price");
@@ -132,13 +135,17 @@ function App() {
   };
 
   // Filter entries by selected year
-  const filterEntriesByYear = (entries, year, month) => {
-    if (!year && !month) return entries; // If no year and month are selected, return all entries
-    return entries.filter(
-      (entry) =>
-        (year ? new Date(entry.date).getFullYear() === parseInt(year) : true) &&
-        (month ? new Date(entry.date).getMonth() === parseInt(month) : true)
-    );
+  const filterEntriesByYear = (entries, year, months) => {
+    return entries.filter((entry) => {
+      const entryYear = new Date(entry.date).getFullYear();
+      const entryMonth = new Date(entry.date).getMonth();
+      const yearMatch = year ? entryYear === parseInt(year) : true;
+      const monthMatch =
+        !months || months.length === 0
+          ? true
+          : months.some((m) => entryMonth === parseInt(m.value));
+      return yearMatch && monthMatch;
+    });
   };
 
   const aggregateData = (entries, period) => {
@@ -205,7 +212,7 @@ function App() {
   const filteredEntries = filterEntriesByYear(
     entries,
     selectedYear,
-    selectedMonth
+    selectedMonths
   ).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const chartData = aggregateData(filteredEntries, timePeriod).map(
@@ -351,6 +358,11 @@ function App() {
     }));
   }, [xAxisKey, filteredEntries, chartData]);
 
+  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
+    value: i.toString(),
+    label: new Date(2022, i, 1).toLocaleDateString("en-US", { month: "long" }),
+  }));
+
   return (
     <div className="container">
       <h1>Commissions Tracker</h1>
@@ -426,22 +438,69 @@ function App() {
         </div>
 
         {/* Month filter dropdown */}
-        <div className="month-filter">
+        <div
+          className="month-filter"
+          style={{ minWidth: 180, position: "relative" }}
+        >
           <label htmlFor="month">Filter by Month: </label>
-          <select
+          <ReactSelect
             id="month"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
+            options={monthOptions}
+            isMulti
+            closeMenuOnSelect={false}
+            hideSelectedOptions={false}
+            components={{
+              Option,
+              MultiValue: MonthMultiValue,
+            }}
+            value={selectedMonths}
+            onChange={setSelectedMonths}
+            placeholder=""
+            styles={{
+              control: (base) => ({
+                ...base,
+                minHeight: 32,
+                fontSize: 14,
+                width: 200,
+              }),
+              valueContainer: (base) => ({
+                ...base,
+                padding: "0 6px",
+              }),
+              indicatorsContainer: (base) => ({
+                ...base,
+                height: 32,
+              }),
+              multiValue: (base) => ({
+                ...base,
+                display: "none", // Hide chips for compactness
+              }),
+            }}
+          />
+          {/* Custom overlay label */}
+          <div
+            style={{
+              position: "absolute",
+              left: 155,
+              top: 9,
+              pointerEvents: "none",
+              fontSize: 14,
+              color: "#555",
+              background: "white",
+              padding: "0 4px",
+              zIndex: 1,
+              maxWidth: 90,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
           >
-            <option value="">All Months</option>
-            {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i}>
-                {new Date(2022, i, 1).toLocaleDateString("en-US", {
-                  month: "long",
-                })}
-              </option>
-            ))}
-          </select>
+            {selectedMonths.length === 0
+              ? "All Months"
+              : selectedMonths.length === 1
+              ? selectedMonths[0].label
+              : "Multiple"}
+          </div>
         </div>
 
         {/* Total count and total price */}
