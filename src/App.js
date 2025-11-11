@@ -241,15 +241,21 @@ function App() {
         }
         return periodKey === dataPoint.date;
       });
-      const wageSum = periodEntries.reduce((sum, entry) => {
-        if (!entry.time) return sum;
-        const [hours, minutes] = entry.time.split(":").map(Number);
-        const totalHours = hours + minutes / 60;
-        return sum + (totalHours > 0 ? entry.price / totalHours : 0);
-      }, 0);
+      // NEW: compute total price and total hours for the period, then divide
+      const { totalPriceWithTime, totalHours } = periodEntries.reduce(
+        (acc, entry) => {
+          if (!entry.time) return acc;
+          const [hours, minutes] = entry.time.split(":").map(Number);
+          const hrs = hours + minutes / 60;
+          return {
+            totalPriceWithTime: acc.totalPriceWithTime + entry.price,
+            totalHours: acc.totalHours + (hrs > 0 ? hrs : 0),
+          };
+        },
+        { totalPriceWithTime: 0, totalHours: 0 }
+      );
 
-      const wageCount = periodEntries.filter((entry) => entry.time).length;
-      wagePerHour = wageCount > 0 ? wageSum / wageCount : null;
+      wagePerHour = totalHours > 0 ? totalPriceWithTime / totalHours : null;
 
       return {
         ...dataPoint,
@@ -282,13 +288,22 @@ function App() {
     .padStart(2, "0")}:${(totalTime % 60).toString().padStart(2, "0")}`;
 
   // Calculate wage per hour for entries with time
-  const wagePerHour =
-    filteredEntries.reduce((total, entry) => {
-      if (!entry.time) return total; // Skip entries without time
-      const [hours, minutes] = entry.time.split(":").map(Number);
-      const totalHours = hours + minutes / 60; // Convert time to hours
-      return total + entry.price / totalHours; // Add wage per hour
-    }, 0) / filteredEntries.filter((entry) => entry.time).length; // Average wage per hour
+  const wagePerHour = (() => {
+    const { totalPriceWithTime, totalHours } = filteredEntries.reduce(
+      (acc, entry) => {
+        if (!entry.time) return acc;
+        const [hours, minutes] = entry.time.split(":").map(Number);
+        const hrs = hours + minutes / 60;
+        if (hrs <= 0) return acc;
+        return {
+          totalPriceWithTime: acc.totalPriceWithTime + entry.price,
+          totalHours: acc.totalHours + hrs,
+        };
+      },
+      { totalPriceWithTime: 0, totalHours: 0 }
+    );
+    return totalHours > 0 ? totalPriceWithTime / totalHours : null;
+  })();
 
   const wagePerHourFormatted = wagePerHour
     ? `€${wagePerHour.toFixed(2)}`
@@ -299,27 +314,50 @@ function App() {
     ...new Set(entries.map((entry) => new Date(entry.date).getFullYear())),
   ].sort();
 
+  // Group by type if xAxisKey is "type"
+  const chartDataByType = React.useMemo(() => {
+    if (xAxisKey !== "type") return chartData;
+    // Aggregate by type using total price / total hours per type
+    const typeMap = {};
+    filteredEntries.forEach((entry) => {
+      const typeKey = entry.type || "Unknown";
+      if (!typeMap[typeKey]) {
+        typeMap[typeKey] = {
+          type: typeKey,
+          price: 0,
+          totalPriceWithTime: 0,
+          totalHours: 0,
+        };
+      }
+      typeMap[typeKey].price += entry.price;
+      if (entry.time) {
+        const [hours, minutes] = entry.time.split(":").map(Number);
+        const hrs = hours + minutes / 60;
+        if (hrs > 0) {
+          typeMap[typeKey].totalPriceWithTime += entry.price;
+          typeMap[typeKey].totalHours += hrs;
+        }
+      }
+    });
+    return Object.values(typeMap).map((d) => ({
+      ...d,
+      wagePerHour:
+        d.totalHours > 0
+          ? Number((d.totalPriceWithTime / d.totalHours).toFixed(2))
+          : null,
+    }));
+  }, [xAxisKey, filteredEntries, chartData]);
+
   // Calculate average for the selected metric
   let averageValue = null;
 
   if (chartMetric === "wagePerHour") {
-    // Use all entries with time for wage per hour average (matches KPI)
-    const wagePerHourEntries = filteredEntries.filter((entry) => entry.time);
-    const wagePerHourValues = wagePerHourEntries
-      .map((entry) => {
-        const [hours, minutes] = entry.time.split(":").map(Number);
-        const totalHours = hours + minutes / 60;
-        return totalHours > 0 ? entry.price / totalHours : null;
-      })
-      .filter((v) => v !== null && !isNaN(v));
-    averageValue =
-      wagePerHourValues.length > 0
-        ? wagePerHourValues.reduce((a, b) => a + b, 0) /
-          wagePerHourValues.length
-        : null;
+    // Use the overall weighted KPI (total price with time / total hours)
+    averageValue = wagePerHour;
   } else {
-    // For price, use the average of the chart data
-    const values = chartData
+    // Use the currently-displayed dataset (by date or by type) to compute average
+    const sourceData = xAxisKey === "type" ? chartDataByType : chartData;
+    const values = sourceData
       .map((d) => d[chartMetric])
       .filter((v) => typeof v === "number" && !isNaN(v));
     averageValue =
@@ -327,36 +365,6 @@ function App() {
         ? values.reduce((a, b) => a + b, 0) / values.length
         : null;
   }
-
-  // Group by type if xAxisKey is "type"
-  const chartDataByType = React.useMemo(() => {
-    if (xAxisKey !== "type") return chartData;
-    // Aggregate by type
-    const typeMap = {};
-    filteredEntries.forEach((entry) => {
-      if (!typeMap[entry.type]) {
-        typeMap[entry.type] = {
-          type: entry.type,
-          price: 0,
-          wagePerHour: 0,
-          count: 0,
-        };
-      }
-      typeMap[entry.type].price += entry.price;
-      if (entry.time) {
-        const [hours, minutes] = entry.time.split(":").map(Number);
-        const totalHours = hours + minutes / 60;
-        typeMap[entry.type].wagePerHour +=
-          totalHours > 0 ? entry.price / totalHours : 0;
-        typeMap[entry.type].count += 1;
-      }
-    });
-    return Object.values(typeMap).map((d) => ({
-      ...d,
-      wagePerHour:
-        d.count > 0 ? Number((d.wagePerHour / d.count).toFixed(2)) : null,
-    }));
-  }, [xAxisKey, filteredEntries, chartData]);
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => ({
     value: i.toString(),
