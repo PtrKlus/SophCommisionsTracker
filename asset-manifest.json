@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/SophCommisionsTracker/static/css/main.02d7da87.css",
-    "main.js": "/SophCommisionsTracker/static/js/main.640376dc.js",
+    "main.js": "/SophCommisionsTracker/static/js/main.f1f66b2c.js",
     "index.html": "/SophCommisionsTracker/index.html",
     "main.02d7da87.css.map": "/SophCommisionsTracker/static/css/main.02d7da87.css.map",
-    "main.640376dc.js.map": "/SophCommisionsTracker/static/js/main.640376dc.js.map"
+    "main.f1f66b2c.js.map": "/SophCommisionsTracker/static/js/main.f1f66b2c.js.map"
   },
   "entrypoints": [
     "static/css/main.02d7da87.css",
-    "static/js/main.640376dc.js"
+    "static/js/main.f1f66b2c.js"
   ]
 }
